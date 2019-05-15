@@ -22,13 +22,22 @@ studentRoutes.post('/add-student',(req,res) =>{
 
   console.log('email : '+req.body.Email);
   console.log('password : '+req.body.Password);
-
-  const s   = new student({
+  const st   = new student({
     Email:req.body.Email,
     Password:req.body.Password
   })
-  const result  = s.save();
-  res.send('user saved');
+  st.generateAuthToken()
+  .then((token) => {
+    const result  = st.save();
+    res.send({st,token})
+  })
+  .catch((e) => {
+    console.log("generateAuthToken Error." + e);
+    res.status(400).send();
+  });
+
+
+
 } )
 
 
@@ -41,13 +50,13 @@ studentRoutes.post('/student-login',  (req,res) =>{
           console.log("generateAuthToken");
           student.generateAuthToken()
           .then((token) => {
+            res.send({student,token})
           })
           .catch((e) => {
             console.log("generateAuthToken Error." + e);
             res.status(400).send();
           });
 
-          res.send(student)
         }else{
           res.status(400).send("Login failed");
         }
